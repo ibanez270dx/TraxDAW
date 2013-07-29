@@ -1,0 +1,78 @@
+
+.html {
+  -webkit-font-smoothing: antialiased;
+}
+
+.title {
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+
+/*
+##################################
+# Control Bar
+##################################
+*/
+
+.microphone i {
+  position:relative;
+  top:12px;
+  left:-2px;
+  font-size:35px;
+  line-height:29px;
+}
+
+#live-waveform {
+  border:1px solid #474949;
+  border-radius:4px;
+  position:absolute;
+  margin-left:5px;
+  margin-top:7px;
+
+  background:#000000;
+  text-shadow:1px 1px 1px #ffffff;
+}
+
+.record {
+  text-align:center;
+}
+.record i {
+  position:relative;
+  top:12px;
+  left:-2px;
+  font-size:35px;
+  line-height:29px;
+}
+
+.playback {
+  text-align:right;
+}
+.playback i {
+  position:relative;
+  top:12px;
+  left:-2px;
+  font-size:35px;
+  line-height:29px;
+}
+
+.inset {
+  text-shadow:1px 1px 1px #ffffff;
+}
+
+div.disabled { color: #cccccc; }
+div.disabled button { background: #cccccc; color:#999999; border-color: #eeeeee; }
+div.disabled button:hover { background: #cccccc; color:#999999; border-color: #eeeeee; }
+
+/*
+##################################
+# Canvases
+##################################
+*/
+
+#canvases {
+  width:100%;
+  height:400px;
+  background:#474949;
+  box-shadow: inset 0 0 10px #000000;
+}

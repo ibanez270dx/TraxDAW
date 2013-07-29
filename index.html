@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTML5 Web Audio Recording</title>
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" />
+    <link href="stylesheets/application.css" rel="stylesheet" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="javascripts/bootstrap.min.js"></script>
+    <script src="javascripts/chroma.min.js"></script>
+    <script src="javascripts/application.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="title">HTML5 Web Audio Recording</h1>
+
+      <div class="navbar">
+        <div class="row">
+          <div class="col-lg-4 microphone">
+            <i class="icon-microphone inset"></i>
+            <button id="mic-start" type="button" class="btn btn-default navbar-btn">Activate</button>
+            <button id="mic-stop"  type="button" class="btn btn-default navbar-btn">Deactivate</button>
+            <canvas id="live-waveform" width="100" height="35"></canvas>
+          </div>
+          <div class="col-lg-4 record disabled">
+            <i class="icon-circle inset"></i>
+            <button type="button" class="btn btn-default navbar-btn">Start</button>
+            <button type="button" class="btn btn-default navbar-btn">Stop</button>
+          </div>
+          <div class="col-lg-4 playback disabled">
+            <i class="icon-play inset"></i>
+            <button type="button" class="btn btn-default navbar-btn">Start</button>
+            <button type="button" class="btn btn-default navbar-btn">Stop</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="canvases">
+        <canvas id="grid"></canvas>
+      </div>
+    </div>
+  </body>
+
+</html>
