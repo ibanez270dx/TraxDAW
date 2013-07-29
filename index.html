@@ -26,8 +26,8 @@
           </div>
           <div class="col-lg-4 record disabled">
             <i class="icon-circle inset"></i>
-            <button type="button" class="btn btn-default navbar-btn">Start</button>
-            <button type="button" class="btn btn-default navbar-btn">Stop</button>
+            <button id="rec-start" type="button" class="btn btn-default navbar-btn">Start</button>
+            <button id="rec-stop"  type="button" class="btn btn-default navbar-btn">Stop</button>
           </div>
           <div class="col-lg-4 playback disabled">
             <i class="icon-play inset"></i>
@@ -39,6 +39,8 @@
 
       <div id="canvases">
         <canvas id="grid"></canvas>
+        <canvas id="recording"></canvas>
+        <canvas id="cursor"></canvas>
       </div>
     </div>
   </body>
