@@ -33,15 +33,7 @@ function drawLiveWaveform(array) {
 // Globals
 //////////////////////////////////////
 
-var hot = new chroma.ColorScale({
-    colors:['#000000', '#ff0000', '#ffff00', '#ffffff'],
-    positions:[0, .25, .75, 1],
-    mode:'rgb',
-    limits:[0, 350]
-});
-
 var chromaOrange = new chroma.scale(['#ff0000', '#ffff00']);
-
 var context = new webkitAudioContext();
 var micRunning = false;
 
@@ -73,6 +65,7 @@ $(document).ready(function(){
       micSource = context.createMediaStreamSource(stream);
       micSource.connect(analyser);
       micRunning = true;
+      $('.navbar .record').removeClass('disabled');
     });
   });
 
