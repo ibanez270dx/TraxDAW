@@ -1,0 +1,123 @@
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+.title {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/*
+##################################
+# Control Bar
+##################################
+*/
+
+.microphone i {
+  position: relative;
+  top: 12px;
+  left: -2px;
+  font-size: 35px;
+  line-height: 29px;
+}
+
+#live-waveform {
+  border-radius: 4px;
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 7px;
+  background: #000000;
+  border-top: 1px solid #474747;
+  border-left: 1px solid #474747;
+  border-right: 1px solid #747474;
+  border-bottom: 1px solid #747474;
+}
+
+#live-waveform-glass {
+  position: absolute;
+  top: 8px;
+  left: 227px;
+  z-index: 9999;
+  width: 100px;
+  height: 35px;
+  box-shadow: inset 0 10px 10px rgba(255, 255, 255, 0.75);
+  border-radius: 4px;
+}
+
+.record {
+  text-align: center;
+  i {
+    position: relative;
+    top: 12px;
+    left: -2px;
+    font-size: 35px;
+    line-height: 29px;
+    &.active {
+      color: #e10019;
+    }
+  }
+}
+
+.playback {
+  text-align: right;
+  i {
+    position: relative;
+    top: 12px;
+    left: -2px;
+    font-size: 35px;
+    line-height: 29px;
+  }
+}
+
+.inset {
+  text-shadow: 1px 1px 1px #ffffff;
+}
+
+div.disabled {
+  color: #cccccc;
+  button {
+    background: #cccccc;
+    color: #999999;
+    border-color: #eeeeee;
+    &:hover {
+      background: #cccccc;
+      color: #999999;
+      border-color: #eeeeee;
+    }
+  }
+}
+
+/*
+##################################
+# Canvases
+##################################
+*/
+
+#canvases {
+  width: 100%;
+  height: 400px;
+  background: #474949;
+  box-shadow: inset 0 0 10px #000000;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  position: relative;
+}
+
+#grid {
+  position: absolute;
+  top: 0px;
+  z-index: 5;
+}
+
+#recording {
+  position: absolute;
+  top: 0px;
+  z-index: 15;
+}
+
+#cursor {
+  position: absolute;
+  top: 0px;
+  z-index: 10;
+}
