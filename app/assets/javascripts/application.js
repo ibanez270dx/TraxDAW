@@ -12,6 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require bootstrap.min
 //= require chroma.min
+//= require aws-sdk-2.0.0-rc9.min.js
 //= require_tree .

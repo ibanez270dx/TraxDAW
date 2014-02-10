@@ -14,3 +14,10 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# Stupid DS Store
+.DS_Store
+
+# Ignore Amazon Credentials File
+/config/amazon.yml
+

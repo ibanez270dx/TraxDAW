@@ -18,5 +18,9 @@ module AudioTrax
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+
+    # Load Amazon S3 Config
+    path = File.join(Rails.root, 'config/amazon.yml')
+    AMAZON = YAML.load(ERB.new(File.read(path)).result)[Rails.env].symbolize_keys
   end
 end
