@@ -297,12 +297,39 @@ class Editor
       console.log "Blob: ", @blob
       console.log "Url: ", @url
 
-      link = window.document.createElement("a")
-      link.href = @url
-      link.download = 'output.wav'
-      click = document.createEvent("Event")
-      click.initEvent "click", true, true
-      link.dispatchEvent click
+      # Connect to Amazon
+      AWS.config.update
+        accessKeyId: "<%= AMAZON[:access_key_id] %>"
+        secretAccessKey: "<%= AMAZON[:secret_access_key] %>"
+      AWS.config.region = 'us-west-1';
+
+      bucket = new AWS.S3
+        params: 
+          Bucket: 'ibanez270dx.trax'
+
+      # link = window.document.createElement("a")
+      # link.href = @url
+      # link.download = 'output.wav'
+      # click = document.createEvent("Event")
+      # click.initEvent "click", true, true
+      # link.dispatchEvent click
+
+      if @blob
+        params = 
+          Key: "test-#{new Date().getTime()}.wav" 
+          ContentType: @blob.type 
+          Body: @blob
+
+        bucket.putObject params, (err, data) =>
+          console.log "err: ", err
+          console.log "data: ", data
+
+      # link = window.document.createElement("a")
+      # link.href = @url
+      # link.download = 'output.wav'
+      # click = document.createEvent("Event")
+      # click.initEvent "click", true, true
+      # link.dispatchEvent click
 
 ##############################################################################################################
 # On Ready   
