@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails'
-gem 'sqlite3'
+gem 'mysql2'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -23,6 +23,9 @@ gem 'bcrypt-ruby'
 
 # Use thin as the app server
 gem 'thin'
+
+# File Attachments
+gem 'paperclip'
 
 group :development do
   gem 'better_errors'
