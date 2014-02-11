@@ -67,6 +67,9 @@ html {
     left: -2px;
     font-size: 35px;
     line-height: 29px;
+    &.active {
+      color: #66CD00;
+    }
   }
 }
 

@@ -12,6 +12,7 @@ class Track
 
   leftChannel: []
   rightChannel: []
+  buffers: []
   length: 0
 
 class Editor
@@ -24,7 +25,9 @@ class Editor
 
     @bufferSize = 2048
     @sampleRate = 44100
-    [@micRunning, @isRecording] = [false, false]
+    @bufferSource = undefined
+
+    [@micRunning, @isRecording, @isPlaying] = [false, false, false]
     [@width, @height, @cursorPosition] = [0, 0, 0]
     @chromaOrange = new chroma.scale(["#00ff00", "#e0e000", "#ff7f00", "#b60101"])
     
@@ -94,6 +97,9 @@ class Editor
         @track.rightChannel.push(new Float32Array(rightChannel))
         @track.length += @bufferSize;
      
+      if @isPlaying
+        console.log "it's playing!"
+
   ############################################################################################################
   # Audio Utility (WAV Formatting)   
   ############################################################################################################
@@ -129,6 +135,52 @@ class Editor
       view.setUint8 offset + i, string.charCodeAt(i)
       i++
     return
+
+  _toWave: (buffers) =>
+      # Now interleave both channels together
+      interleaved = @_interleave(buffers[0], buffers[1])
+
+      # Create a WAV file
+      buffer = new ArrayBuffer(44 + interleaved.length * 2)
+      view = new DataView(buffer)
+
+      # RIFF chunk descriptor
+      @_writeUTFBytes view, 0, "RIFF"
+      view.setUint32 4, 44 + interleaved.length * 2, true
+      @_writeUTFBytes view, 8, "WAVE"
+
+      # FMT sub-chunk
+      @_writeUTFBytes view, 12, "fmt "
+      view.setUint32 16, 16, true
+      view.setUint16 20, 1, true
+
+      # stereo (2 channels)
+      view.setUint16 22, 2, true
+      view.setUint32 24, @sampleRate, true
+      view.setUint32 28, @sampleRate * 4, true
+      view.setUint16 32, 4, true
+      view.setUint16 34, 16, true
+
+      # data sub-chunk
+      @_writeUTFBytes view, 36, "data"
+      view.setUint32 40, interleaved.length * 2, true
+
+      # write the PCM samples
+      lng = interleaved.length
+      index = 44
+      volume = 1
+      i = 0
+
+      while i < lng
+        view.setInt16 index, interleaved[i] * (0x7FFF * volume), true
+        index += 2
+        i++
+      
+      # our final binary blob
+      @blob = new Blob([view], type: "audio/wav")
+      @url = (window.URL || window.webkitURL).createObjectURL(@blob)
+      return { blob: @blob, url: @url }
+
 
   ############################################################################################################
   # HTML5 Canvases   
@@ -180,8 +232,7 @@ class Editor
     ctx = @track['canvases']['cursor'][0].getContext("2d")
     ctx.fillStyle = "rgba(255,255,255,0.1)"
     ctx.fillRect(0, 0, 1, @height)
-    ctx.translate(1, 0)
-    console.log "cp: ", @cursorPosition
+    ctx.translate(1, 0) 
     @cursorPosition++
 
   _drawRecording: (array) =>
@@ -240,96 +291,32 @@ class Editor
     # Stop Recording
     @editor.find("#rec-stop").on 'click', (event) =>
       $("div.record i").removeClass("active")
+      $('div.playback').removeClass('disabled')
       @isRecording = false
 
-      # First flatten the left and right channels down
+      # Flatten the left and right channels down and save
       leftBuffer  = @_mergeBuffers(@track.leftChannel,  @track.length)
       rightBuffer = @_mergeBuffers(@track.rightChannel, @track.length)
+      @track['buffers'] = [leftBuffer, rightBuffer]
 
-      console.log "leftBuffer: ", leftBuffer
-      console.log "rightBuffer: ", rightBuffer
+    # Start Playback
+    @editor.find("#play-start").on 'click', (event) =>
+      $('div.playback i').addClass('active')
+      @bufferSource = @context.createBufferSource()
+      @bufferSource.buffer = @context.createBuffer(1, @track['buffers'][0].length, 44100)
+      @bufferSource.buffer.getChannelData(0).set(@track['buffers'][0])
+      @bufferSource.buffer.getChannelData(0).set(@track['buffers'][1])
+      @bufferSource.onended = => @editor.find('#play-stop').click()
+      @bufferSource.connect(@context.destination)
+      @bufferSource.noteOn(0)
+      @isPlaying = true
 
-      # Now interleave both channels together
-      interleaved = @_interleave(leftBuffer, rightBuffer)
+    # Stop Playback
+    @editor.find('#play-stop').on 'click', (event) =>
+      $('div.playback i').removeClass('active')
+      @bufferSource.disconnect(@context.destination)
+      @isPlaying = false
 
-      console.log "interleaved: ", interleaved
-    
-      # Create a WAV file
-      buffer = new ArrayBuffer(44 + interleaved.length * 2)
-      view = new DataView(buffer)
-
-      # RIFF chunk descriptor
-      @_writeUTFBytes view, 0, "RIFF"
-      view.setUint32 4, 44 + interleaved.length * 2, true
-      @_writeUTFBytes view, 8, "WAVE"
-
-      # FMT sub-chunk
-      @_writeUTFBytes view, 12, "fmt "
-      view.setUint32 16, 16, true
-      view.setUint16 20, 1, true
-
-      # stereo (2 channels)
-      view.setUint16 22, 2, true
-      view.setUint32 24, @sampleRate, true
-      view.setUint32 28, @sampleRate * 4, true
-      view.setUint16 32, 4, true
-      view.setUint16 34, 16, true
-
-      # data sub-chunk
-      @_writeUTFBytes view, 36, "data"
-      view.setUint32 40, interleaved.length * 2, true
-
-      # write the PCM samples
-      lng = interleaved.length
-      index = 44
-      volume = 1
-      i = 0
-
-      while i < lng
-        view.setInt16 index, interleaved[i] * (0x7FFF * volume), true
-        index += 2
-        i++
-      
-      # our final binary blob
-      @blob = new Blob([view], type: "audio/wav")
-      @url = (window.URL || window.webkitURL).createObjectURL(@blob)
-
-      console.log "Blob: ", @blob
-      console.log "Url: ", @url
-
-      # Connect to Amazon
-      AWS.config.update
-        accessKeyId: "<%= AMAZON[:access_key_id] %>"
-        secretAccessKey: "<%= AMAZON[:secret_access_key] %>"
-      AWS.config.region = 'us-west-1';
-
-      bucket = new AWS.S3
-        params: 
-          Bucket: 'ibanez270dx.trax'
-
-      # link = window.document.createElement("a")
-      # link.href = @url
-      # link.download = 'output.wav'
-      # click = document.createEvent("Event")
-      # click.initEvent "click", true, true
-      # link.dispatchEvent click
-
-      if @blob
-        params = 
-          Key: "test-#{new Date().getTime()}.wav" 
-          ContentType: @blob.type 
-          Body: @blob
-
-        bucket.putObject params, (err, data) =>
-          console.log "err: ", err
-          console.log "data: ", data
-
-      # link = window.document.createElement("a")
-      # link.href = @url
-      # link.download = 'output.wav'
-      # click = document.createEvent("Event")
-      # click.initEvent "click", true, true
-      # link.dispatchEvent click
 
 ##############################################################################################################
 # On Ready   
