@@ -33,6 +33,9 @@ GEM
       erubis (>= 2.6.6)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
+    bourbon (3.1.8)
+      sass (>= 3.2.0)
+      thor
     builder (3.1.4)
     climate_control (0.0.3)
       activesupport (>= 3.0)
@@ -51,6 +54,8 @@ GEM
     erubis (2.7.0)
     eventmachine (1.0.3)
     execjs (2.0.2)
+    font-awesome-sass (4.0.2)
+      sass-rails (>= 3.1.1)
     hike (1.2.3)
     i18n (0.6.5)
     jbuilder (1.5.2)
@@ -68,6 +73,9 @@ GEM
     minitest (4.7.5)
     multi_json (1.8.2)
     mysql2 (0.3.15)
+    neat (1.5.0)
+      bourbon (>= 2.1)
+      sass (>= 3.2)
     paperclip (4.1.0)
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -132,10 +140,13 @@ DEPENDENCIES
   bcrypt-ruby
   better_errors
   binding_of_caller
+  bourbon
   coffee-rails
+  font-awesome-sass
   jbuilder
   jquery-rails
   mysql2
+  neat
   paperclip
   rails
   sass-rails

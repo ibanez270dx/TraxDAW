@@ -1,0 +1,30 @@
+@mixin border-radius($radius) {
+  @include border-top-radius($radius);
+  @include border-bottom-radius($radius);
+  @include border-left-radius($radius);
+  @include border-right-radius($radius);
+}
+
+@mixin track-color($color) {
+  .controls div:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 7px;
+    height: 100%;
+    background: $color;
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+  }
+
+  .canvases.active:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba($color, 0.4);
+  }
+}

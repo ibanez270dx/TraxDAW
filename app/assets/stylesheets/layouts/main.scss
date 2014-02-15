@@ -1,0 +1,23 @@
+html.main {
+
+  div#page {
+    @include outer-container;  
+    font-family: 'Archivo Narrow', sans-serif;
+
+    h1.title {
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    button {
+      background: #404040;
+      @include border-radius(3px);
+      border: none;
+      padding: 9px 6px 10px;
+      font-size: 16px;
+      color: #fefefe;
+    }
+
+  } 
+}

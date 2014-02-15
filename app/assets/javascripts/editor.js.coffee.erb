@@ -6,9 +6,9 @@ class Track
   constructor: (track) ->
     @track  = track
     @canvases = 
-      grid: @track.find('canvas#grid')
-      wave: @track.find('canvas#wave')
-      cursor: @track.find('canvas#cursor')
+      grid: @track.find('canvas.grid')
+      wave: @track.find('canvas.wave')
+      background: @track.find('canvas.background')
 
   leftChannel: []
   rightChannel: []
@@ -19,7 +19,7 @@ class Editor
 
   constructor: (editor, options) ->
     @editor = editor
-    @track = new Track(@editor.find('#track'))
+    @track = new Track(@editor.find('[data-track-id="1"]'))
 
     @liveWaveform = @editor.find('#live-waveform')
 
@@ -88,6 +88,7 @@ class Editor
         @_drawLiveWaveform(array) 
 
       if @isRecording
+        console.log "is recording!"
         @_drawRecording(array)
         leftChannel = event.inputBuffer.getChannelData(0)
         rightChannel = event.inputBuffer.getChannelData(0)
@@ -187,8 +188,8 @@ class Editor
   ############################################################################################################
 
   _setupCanvases: =>
-    @width = @editor.find("#track").width()
-    @height = @editor.find("#track").height()
+    @width = @editor.find(".canvases").width()
+    @height = @editor.find(".canvases").height()
 
     for id, element of @track['canvases']
       ctx = element[0].getContext("2d")
@@ -214,22 +215,24 @@ class Editor
 
   _drawWaveform: (array) =>
     ctx = @track['canvases']['wave'][0].getContext("2d")
+    console.log ctx
     waveValues = []
-    min = Math.min.apply(Math, array) * 400 / 255
-    max = Math.max.apply(Math, array) * 400 / 255
+    min = Math.min.apply(Math, array) * 100 / 255
+    max = Math.max.apply(Math, array) * 100 / 255
     while min < max
       waveValues.push(min)
       min++
 
     for i in [0..waveValues.length]
       value = waveValues[i]
-      ctx.fillStyle = @chromaOrange(value / 400).hex()
+      console.log "value: ", value
+      # ctx.fillStyle = @chromaOrange(value / 100).hex()
+      ctx.fillStyle = "#0081c9"
       ctx.fillRect(0, value, 1, 1)
     ctx.translate(1, 0)
 
-  _drawCursor: =>
-    console.log "track: ", @track
-    ctx = @track['canvases']['cursor'][0].getContext("2d")
+  _drawBackground: =>
+    ctx = @track['canvases']['background'][0].getContext("2d")
     ctx.fillStyle = "rgba(255,255,255,0.1)"
     ctx.fillRect(0, 0, 1, @height)
     ctx.translate(1, 0) 
@@ -237,7 +240,7 @@ class Editor
 
   _drawRecording: (array) =>
     @_drawWaveform(array)
-    @_drawCursor()
+    @_drawBackground()
 
   _resetTrack: =>
     # Reset Details
@@ -248,7 +251,7 @@ class Editor
       ctx = element[0].getContext("2d")
       ctx.save()
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.clearRect(0, 0, ctx.canvas.width, 100);
       ctx.restore()
 
     # FIXME: Reset the Cursor
@@ -267,7 +270,7 @@ class Editor
         @micSource = @context.createMediaStreamSource(stream)
         @micSource.connect(@gain)
         @micRunning = true
-        $(".navbar .record").removeClass("disabled")
+        $("nav .record").removeClass("disabled")
 
     # Stop Microphone
     @editor.find("#mic-stop").on 'click', (event) =>
