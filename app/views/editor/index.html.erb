@@ -26,28 +26,7 @@
     <section id="workspace">
 
       <table id="tracks">
-        <tbody>
-          <% ['blue','orange'].each_with_index do |color, i| %>
-            <% i=i+1 %>
-            <tr data-track-id="<%= i %>" class="track <%= color %>">
-              <td class="controls">
-                <div class="panel">
-                  <span class="title">Track <%= i %></span>
-                  <div class="nodes">
-                    <label>Gain:</label><input name="track-<%= i %>-gain" type="number" /> 
-                  </div>
-                  <div class="switches">
-                    <a data-mute>Mute</a>
-                  </div>
-                </div>
-              </td>
-              <td class="canvases">
-                <canvas class="wave" height="100"></canvas>
-                <canvas class="background" height="100"></canvas>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
+        <tbody></tbody>
       </table>
 
       <table id="canvas-layer">
@@ -62,7 +41,7 @@
       </table>
 
       <div id="lower-controls">
-        <a data-add-track><i class="fa fa-plus-square"></i>Add Track</a>
+        <button id="add-track"><i class="fa fa-plus-square"></i>Add Track</button>
       </div>
     </section>
   </div>

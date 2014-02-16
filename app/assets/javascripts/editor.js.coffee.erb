@@ -3,23 +3,43 @@
 # Recording :: Microphone -> VolumeNode -> AnalyserNode -> ScriptProcessor -> Recorder -> Destination
 
 class Track
-  constructor: (track) ->
-    @track  = track
-    @canvases = 
-      wave: @track.find('canvas.wave')
-      background: @track.find('canvas.background')
 
   leftChannel: []
   rightChannel: []
   buffers: []
   length: 0
 
+  constructor: (element, id) ->
+    @track  = element
+    @canvases = 
+      wave: @track.find('canvas.wave')
+      background: @track.find('canvas.background')
+    
+    # Determine Track Color
+    colors = ['blue','yellow','purple','red','green','orange','teal','pink']
+    color = if id <= 8 then colors[id-1] else 'blue'
+
+    # Setup Track
+    @track.prop('id', "track-#{id}")
+    @track.find('.title').text("Track #{id}")
+    @track.addClass(color)
+    @_setupCanvases()
+
+  _setupCanvases: =>
+    @width = @track.find('td.canvases').width()
+    @height = @track.find('td.canvases').height()
+
+    for id, element of @canvases
+      ctx = element[0].getContext("2d")
+      ctx.canvas.width = @width
+      ctx.canvas.height = @height
+      ctx.save()
+
 class Editor
 
   constructor: (editor, options) ->
     @editor = editor
-    @track = new Track(@editor.find('[data-track-id="1"]'))
-
+    @tracks = @editor.find('#tracks')
     @liveWaveform = @editor.find('#live-waveform')
 
     @bufferSize = 2048
@@ -36,8 +56,10 @@ class Editor
     @_setupNodes()
     @_setupAudioHandler()
     @_setupClickHandlers()
-    @_setupCanvases()
     @_drawGrid()
+
+    # Create a track to start
+    @_addTrack()
 
   ############################################################################################################
   # Web Audio API   
@@ -183,18 +205,21 @@ class Editor
 
 
   ############################################################################################################
-  # HTML5 Canvases   
+  # Editor Methods   
   ############################################################################################################
 
-  _setupCanvases: =>
-    @width = @editor.find(".canvases").width()
-    @height = @editor.find(".canvases").height()
+  _trackCount: =>
+    @tracks.find('.track').length
 
-    for id, element of @track['canvases']
-      ctx = element[0].getContext("2d")
-      ctx.canvas.width = @width
-      ctx.canvas.height = @height
-      ctx.save()
+  _addTrack: =>
+    $.get '/editor/add-track', (data) =>
+      @tracks.find('tbody').append(data['html'])
+      @track = new Track(@tracks.find('.track:last'), @_trackCount())
+      @_drawGrid()
+
+  ############################################################################################################
+  # HTML5 Canvases   
+  ############################################################################################################
 
   _drawGrid: =>
     width = @editor.find('#workspace #tracks td.canvases').width()
@@ -326,6 +351,15 @@ class Editor
       $('div.playback i').removeClass('active')
       @bufferSource.disconnect(@context.destination)
       @isPlaying = false
+
+    # Add Track
+    @editor.find('#add-track').on 'click', (event) =>
+      event.preventDefault()
+      @_addTrack()
+
+    # Change Track Name
+    $(document).on 'click', '.track .title', (event) ->
+      event.preventDefault()
 
 
 ##############################################################################################################
