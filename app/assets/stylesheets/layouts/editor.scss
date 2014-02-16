@@ -107,66 +107,117 @@ html {
 ##################################
 */
 
-table#tracks {
-  border: 1px solid #000000;
-  border-spacing: 0px;
+section#workspace {
   position: relative;
-  width: 100%;
-  background: #474949;
-  box-shadow: inset 0 0 20px #000000;
-  @include border-radius(10px);
+  background: #e5e5e5;
+  @include border-radius(10px); 
 
-  tbody {
-    
-    tr.track {
-      position: relative;
-      width: 100%;
-      height: 100px;      
-      &.blue { @include track-color(#0081c9); }
-      &.orange { @include track-color(#f58026); }      
+  table#tracks {
+    border: 1px solid #000000;
+    border-spacing: 0px;
+    position: relative;
+    width: 100%;
+    background: #474949;
+    box-shadow: inset 0 0 20px #000000;
+    @include border-radius(10px);
 
-      td.controls {
-        width: 30%;
-        padding: 2px;
-        div {
+    tbody {
+      tr.track {
+        position: relative;
+        width: 100%;
+        height: 100px;      
+        &.blue { @include track-color(#0081c9); }
+        &.orange { @include track-color(#f58026); }      
+
+        td.controls {
+          width: 30%;
+          padding: 2px;
+          div.panel {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            @include border-radius(7px);
+            background: #ccc;
+            padding-left: 12px;
+            line-height: 25px;
+            span.title {
+            }
+            div.nodes {
+
+            }
+            div.switches {
+              position: absolute;
+              right: 0px;
+              bottom: 0px;
+              padding: 3px;
+              a[data-mute] {
+                border: 1px solid rgba(0,0,0,0.75);
+                @include border-radius(3px);
+                padding: 3px;
+                font-family: Arial, sans-serif;
+                text-transform: uppercase;
+                font-size: 10px;
+              }
+            }
+          }
+        }
+
+        td.canvases {
           position: relative;
-          width: 100%;
-          height: 100px;
-          @include border-radius(7px);
-          background: #ccc;
-          padding-left: 12px;
-          span {
+          width: 70%;
+
+          .recording {
             position: absolute;
-            top: 3px;
+            top: 2px;
+            left: 0px;
+            z-index: 300;
+          }
+
+          .background {
+            position: absolute;
+            top: 2px;
+            left: 0px;
+            z-index: 200;
           }
         }
       }
+    }
+  }
 
-      td.canvases {
-        position: relative;
-        width: 70%;
+  table#canvas-layer {
+    position: absolute;
+    top: 0px;
+    width: 100%;
 
-        .grid {
-          position: absolute;
-          top: 0px;
-          left: 0px;
-          z-index: 5;
+    tbody {
+      tr {
+        td.controls {
+          width: 30%;
         }
-
-        .recording {
-          position: absolute;
-          top: 0px;
-          left: 0px;
-          z-index: 15;
-        }
-
-        .background {
-          position: absolute;
-          top: 0px;
-          left: 0px;
-          z-index: 10;
+        td.canvases {
+          width: 70%;
+          position: relative;
+          canvas#grid {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: 100;
+          }
         }
       }
+    }
+  }
+
+  div#lower-controls {
+    height: 48px;
+    padding-top: 15px;
+    padding-left: 10px;
+    a[data-add-track] {
+      border: 1px solid rgba(0,0,0,0.5);
+      @include border-radius(3px);
+      padding: 3px;
+      cursor: pointer;
+      i { margin-right: 4px; }
     }
   }
 }

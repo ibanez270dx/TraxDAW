@@ -6,7 +6,6 @@ class Track
   constructor: (track) ->
     @track  = track
     @canvases = 
-      grid: @track.find('canvas.grid')
       wave: @track.find('canvas.wave')
       background: @track.find('canvas.background')
 
@@ -198,11 +197,19 @@ class Editor
       ctx.save()
 
   _drawGrid: =>
-    ctx = @track['canvases']['grid'][0].getContext("2d")
-    for i in [0..@width]
-      if (i%100 is 0 && i isnt 0 && i isnt @width)
+    width = @editor.find('#workspace #tracks td.canvases').width()
+    height = @editor.find('#workspace #tracks').height()
+
+    grid = @editor.find('#canvas-layer .canvases #grid')
+    ctx = grid[0].getContext("2d")
+    ctx.canvas.width = width
+    ctx.canvas.height = height-6  # padding is 3px top+bottom
+    ctx.save()
+
+    for i in [0..width]
+      if (i%100 is 0 && i isnt 0 && i isnt width)
         ctx.fillStyle = "#333333"
-        ctx.fillRect(i, 0, 1, @height)
+        ctx.fillRect(i, 0, 1, height)
 
   _drawLiveWaveform: (array) =>
     ctx = @liveWaveform[0].getContext("2d")

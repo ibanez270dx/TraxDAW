@@ -6,7 +6,7 @@
 }
 
 @mixin track-color($color) {
-  .controls div:before {
+  .controls div.panel:before {
     content: '';
     position: absolute;
     top: 0;
