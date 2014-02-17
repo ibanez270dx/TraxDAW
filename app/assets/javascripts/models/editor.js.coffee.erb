@@ -23,6 +23,7 @@
     @sampleRate = 44100
     @bufferSource = undefined
     @currentTrackId = 0
+    @timeInterval = 0.04643990844488144
 
     [@micRunning, @isRecording, @isPlaying] = [false, false, false]
     [@width, @height, @cursorPosition] = [0, 0, 0]
@@ -36,6 +37,9 @@
     @_setupClickHandlers()
     @_drawGrid()
 
+    # Create Multitrack Buffer
+    @buffer = new TRAX.Buffer(@context)
+
     # Create a track to start
     @_addTrack()
 
@@ -47,7 +51,7 @@
     # Script Processer Node
     # This interface is an AudioNode which can generate, process, or analyse audio directly using JavaScript.
     # https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html#ScriptProcessorNode
-    @scriptProcessor = @context.createScriptProcessor(2048, 1, 1)
+    @scriptProcessor = @context.createScriptProcessor(2048, 2, 2)
     @scriptProcessor.connect(@context.destination)
 
     # Analyser Node
@@ -87,16 +91,19 @@
         @_drawLiveWaveform(array) 
 
       if @isRecording
-        
-        @_drawRecording(array)
+        # We clone the samples and set Track channels
         leftChannel = event.inputBuffer.getChannelData(0)
-        rightChannel = event.inputBuffer.getChannelData(0)
-
-        # we clone the samples
+        rightChannel = event.inputBuffer.getChannelData(1)
         @track.leftChannel.push(new Float32Array(leftChannel))
         @track.rightChannel.push(new Float32Array(rightChannel))
-        @track.length += @bufferSize;
-     
+        
+        # Set Buffer Length and Track duration
+        @track.length += event.inputBuffer.length
+        @track.duration += event.inputBuffer.duration
+
+        # Draw Canvas
+        @_drawRecording(array)
+
       if @isPlaying
         console.log "it's playing!"
 
@@ -114,10 +121,16 @@
     ctx.canvas.height = height-6  # padding is 3px top+bottom
     ctx.save()
 
-    for i in [0..width]
-      if (i%100 is 0 && i isnt 0 && i isnt width)
-        ctx.fillStyle = "#333333"
-        ctx.fillRect(i, 0, 1, height)
+    # How many pixels is 1 second? 
+    # --> When interval passes new whole number
+    interval = 0
+    second = -1
+    for x in [0..width] 
+      interval += @timeInterval
+      if parseInt(interval) > second
+        ctx.fillStyle = "rgba(0,0,0,0.15)"
+        ctx.fillRect(x, 0, 1, height)
+      second = parseInt(interval)
 
   _drawLiveWaveform: (array) =>
     ctx = @liveWaveform[0].getContext("2d")
@@ -158,6 +171,48 @@
   # Editor Methods   
   ############################################################################################################
 
+  startMicrophone: =>
+    navigator.webkitGetUserMedia { audio: true }, (stream) =>
+      @micSource = @context.createMediaStreamSource(stream)
+      @micSource.connect(@gain)
+      @micRunning = true
+      $("nav .record").removeClass("disabled")
+
+  stopMicrophone: =>
+    @micSource.disconnect(@volume)
+    @micRunning = false
+    @liveWaveform.get()[0].getContext("2d").clearRect(0, 0, 100, 35)
+    $("nav .record").addClass("disabled")
+
+  startRecording: =>
+    if @micRunning
+      $("div.record i").addClass("active")
+      @track.reset()
+      @isRecording = true 
+
+  stopRecording: =>
+    @isRecording = false
+    $("div.record i").removeClass("active")
+    $('div.playback').removeClass('disabled')
+    @track.saveBuffers()
+    console.log "duration: ", @track.duration
+
+  startPlayback: =>
+    $('div.playback i').addClass('active')
+    @buffer.play(@tracks)
+    @isPlaying = true
+
+  stopPlayback: =>
+    $('div.playback i').removeClass('active')
+    @buffer.stop()
+    @isPlaying = false
+
+  _selectTrack: (target) =>
+    @currentTrackId = target.prop('id').slice(-1)
+    @track = @tracks[@currentTrackId-1]
+    @editor.find('.track').removeClass('active')
+    target.addClass('active')
+
   _trackCount: =>
     @workspace.find('#tracks .track').length
 
@@ -166,32 +221,9 @@
       @workspace.find('#tracks tbody').append(data['html'])       
       @currentTrackId = @_trackCount()
       track = @workspace.find('#tracks .track:last')
-      @tracks.push(new TRAX.Track(track, @currentTrackId))
+      @tracks.push(new TRAX.Track(track, @currentTrackId, @context))
       @_drawGrid()
       @_selectTrack(track)
-
-  _resetTrack: =>
-    # Reset Details
-    @track.leftChannel.length = @track.rightChannel.length = @track.length = 0
-
-    # Reset Track Canvas
-    for id, element of @track['canvases']
-      ctx = element[0].getContext("2d")
-      ctx.save()
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, ctx.canvas.width, 100);
-      ctx.restore()
-
-    # FIXME: Reset the Cursor
-    # wave = @track['canvases']['wave'][0].getContext("2d")
-    # wave.translate(-@currentPosition, 0);
-    # wave.restore()
-  
-  _selectTrack: (target) =>
-    @currentTrackId = target.prop('id').slice(-1)
-    @track = @tracks[@currentTrackId-1]
-    @editor.find('.track').removeClass('active')
-    target.addClass('active')
 
   ############################################################################################################
   # Event Handling
@@ -200,55 +232,27 @@
   _setupClickHandlers: =>
     # Start Microphone
     @editor.find("#mic-start").on 'click', (event) =>
-      navigator.webkitGetUserMedia { audio: true }, (stream) =>
-        @micSource = @context.createMediaStreamSource(stream)
-        @micSource.connect(@gain)
-        @micRunning = true
-        $("nav .record").removeClass("disabled")
+      @startMicrophone()
 
     # Stop Microphone
     @editor.find("#mic-stop").on 'click', (event) =>
-      @micSource.disconnect(@volume)
-      @micRunning = false
-      $("#live-waveform").get()[0].getContext("2d").clearRect(0, 0, 100, 35)
-      $(".navbar .record").addClass("disabled")
+      @stopMicrophone()
 
     # Start Recording
     @editor.find("#rec-start").on 'click', (event) =>
-      if !$(this).closest("div.record").hasClass("disabled")
-        $("div.record i").addClass("active")
-        # Reset Track Canvas
-        @_resetTrack()
-        @_drawGrid()
-        # Reset the buffers for the new recording
-        @track.leftChannel.length = @track.rightChannel.length = 0
-        @track.length = 0       
-        @isRecording = true 
+      @startRecording()
 
     # Stop Recording
     @editor.find("#rec-stop").on 'click', (event) =>
-      $("div.record i").removeClass("active")
-      $('div.playback').removeClass('disabled')
-      @track.stopRecording()
-      @isRecording = false
+      @stopRecording()
 
     # Start Playback
     @editor.find("#play-start").on 'click', (event) =>
-      $('div.playback i').addClass('active')
-      @bufferSource = @context.createBufferSource()
-      @bufferSource.buffer = @context.createBuffer(1, @track['buffers'][0].length, 44100)
-      @bufferSource.buffer.getChannelData(0).set(@track['buffers'][0])
-      @bufferSource.buffer.getChannelData(0).set(@track['buffers'][1])
-      @bufferSource.onended = => @editor.find('#play-stop').click()
-      @bufferSource.connect(@context.destination)
-      @bufferSource.noteOn(0)
-      @isPlaying = true
+      @startPlayback()
 
     # Stop Playback
     @editor.find('#play-stop').on 'click', (event) =>
-      $('div.playback i').removeClass('active')
-      @bufferSource.disconnect(@context.destination)
-      @isPlaying = false
+      @stopPlayback()
 
     # Add Track
     @editor.find('#add-track').on 'click', (event) =>
