@@ -6,16 +6,21 @@
 }
 
 @mixin track-color($color) {
-  .controls div.panel:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 7px;
-    height: 100%;
-    background: $color;
-    border-top-left-radius: 7px;
-    border-bottom-left-radius: 7px;
+  .controls {
+    position: relative;
+
+    div.tag {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 7px;
+      height: 100px;
+      background: $color;
+      border-top-left-radius: 7px;
+      border-bottom-left-radius: 7px;
+      z-index: 100;
+      padding-bottom: 2px;
+    }
   }
 
   .canvases.active:before {
@@ -26,5 +31,14 @@
     width: 100%;
     height: 100%;
     background: rgba($color, 0.4);
+  }
+
+  &.active {
+    td.controls {
+      div.panel {
+        border: 1px solid $color;
+        background: $light-grey;       
+      }
+    }
   }
 }
