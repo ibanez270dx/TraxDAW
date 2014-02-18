@@ -12,36 +12,35 @@
 @TRAX.Editor = class Editor
 
   track: undefined
-  tracks: []
 
   constructor: (editor, options) ->
     @editor = editor
-    @workspace = @editor.find('#workspace')
     @liveWaveform = @editor.find('#live-waveform')
 
     @bufferSize = 2048
     @sampleRate = 44100
     @bufferSource = undefined
     @currentTrackId = 0
-    @timeInterval = 0.04643990844488144
 
     [@micRunning, @isRecording, @isPlaying] = [false, false, false]
     [@width, @height, @cursorPosition] = [0, 0, 0]
     @chromaOrange = new chroma.scale(["#00ff00", "#e0e000", "#ff7f00", "#b60101"])
     
-    # Setup Web Audio API Context
+    # Setup Web Audio API
     @context = new webkitAudioContext()
-
     @_setupNodes()
     @_setupAudioHandler()
-    @_setupClickHandlers()
-    @_drawGrid()
 
-    # Create Multitrack Buffer
+    # Initialize Editor
     @buffer = new TRAX.Buffer(@context)
+    @_setupClickHandlers()
+
+    # Create Workspace
+    @workspace = new TRAX.Workspace(@context, @editor.find('#workspace'))
 
     # Create a track to start
-    @_addTrack()
+    @workspace.createTrack()
+
 
   ############################################################################################################
   # Web Audio API   
@@ -111,27 +110,6 @@
   # HTML5 Canvases   
   ############################################################################################################
 
-  _drawGrid: =>
-    width = @editor.find('#workspace #tracks td.canvases').width()
-    height = @editor.find('#workspace #tracks').height()
-
-    grid = @editor.find('#canvas-layer .canvases #grid')
-    ctx = grid[0].getContext("2d")
-    ctx.canvas.width = width
-    ctx.canvas.height = height-6  # padding is 3px top+bottom
-    ctx.save()
-
-    # How many pixels is 1 second? 
-    # --> When interval passes new whole number
-    interval = 0
-    second = -1
-    for x in [0..width] 
-      interval += @timeInterval
-      if parseInt(interval) > second
-        ctx.fillStyle = "rgba(0,0,0,0.15)"
-        ctx.fillRect(x, 0, 1, height)
-      second = parseInt(interval)
-
   _drawLiveWaveform: (array) =>
     ctx = @liveWaveform[0].getContext("2d")
     ctx.clearRect(0, 0, 100, 35)
@@ -152,7 +130,7 @@
 
     for i in [0..waveValues.length]
       value = waveValues[i]
-      ctx.fillStyle = "#{@track.color()}"
+      ctx.fillStyle = "#{@track.getHexColor()}"
       ctx.fillRect(0, value, 1, 1)
     ctx.translate(1, 0)
 
@@ -207,24 +185,6 @@
     @buffer.stop()
     @isPlaying = false
 
-  _selectTrack: (target) =>
-    @currentTrackId = target.prop('id').slice(-1)
-    @track = @tracks[@currentTrackId-1]
-    @editor.find('.track').removeClass('active')
-    target.addClass('active')
-
-  _trackCount: =>
-    @workspace.find('#tracks .track').length
-
-  _addTrack: =>
-    $.get '/editor/add-track', (data) =>
-      @workspace.find('#tracks tbody').append(data['html'])       
-      @currentTrackId = @_trackCount()
-      track = @workspace.find('#tracks .track:last')
-      @tracks.push(new TRAX.Track(track, @currentTrackId, @context))
-      @_drawGrid()
-      @_selectTrack(track)
-
   ############################################################################################################
   # Event Handling
   ############################################################################################################
@@ -257,15 +217,15 @@
     # Add Track
     @editor.find('#add-track').on 'click', (event) =>
       event.preventDefault()
-      @_addTrack()
+      @workspace.createTrack()
 
     # Change Track Name
     $(document).on 'click', '.track .title', (event) =>
       event.preventDefault()
 
     # Select Track
-    $(document).on 'click', '.track .panel', (event) =>
+    $(document).on 'click', '#workspace .controls', (event) =>
       event.preventDefault()
-      target = $(event.currentTarget).closest('.track')
-      @_selectTrack(target)
+      track_id = $(event.currentTarget).data('track-id')
+      @workspace.selectTrackById(track_id)
 

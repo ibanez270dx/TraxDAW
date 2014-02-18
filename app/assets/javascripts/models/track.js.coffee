@@ -17,34 +17,39 @@
   numberOfChannels: 0
   gain: 0
 
-
   # Canvases
   width: 0
   height: 0
 
-  constructor: (element, id, context) ->
-    @track  = element
+  constructor: (context, elements, id) ->
     @context = context
+    @track =
+      controls: elements.filter -> $(this).hasClass('controls')
+      canvases: elements.filter -> $(this).hasClass('canvases')
+    @id = id
     @canvases = 
-      wave: @track.find('canvas.wave')
-      background: @track.find('canvas.background')
-    
-    # Determine Track Color
-    colors = ['blue','yellow','purple','red','green','orange','teal','pink']
-    color = if id <= 8 then colors[id-1] else 'blue'
+      wave: @track['canvases'].find('canvas.wave')
+      background: @track['canvases'].find('canvas.background')
 
     # Setup Track
-    @track.prop('id', "track-#{id}")
-    @track.find('.title').text("Track #{id}")
-    @track.addClass(color)
+    element.attr('data-track-id', @id) for name, element of @track  
+    @track['controls'].find('.title').text("Track #{@id}")
     @_setupCanvases()
+    
+    # Pick a random Track color
+    colors = ['blue','yellow','purple','red','green','orange','teal','pink']
+    @setColor(colors[Math.floor(Math.random()*(7-0+1))+0])
 
   ############################################################################################################
   # Track Methods   
   ############################################################################################################
- 
-  color: =>
-    @track.find('.tag').css('background-color')
+
+  setColor: (color) =>
+    for name, element of @track
+      element.attr('data-color', color) 
+
+  getHexColor: =>
+    @track['controls'].find('.tag').css('background-color')
 
   saveBuffers: => 
     # Flatten the left and right channels down and save
@@ -155,8 +160,8 @@
   ############################################################################################################
  
    _setupCanvases: =>
-    @width = @track.find('td.canvases').width()
-    @height = @track.find('td.canvases').height()-(parseInt(@track.find('td.canvases').css('padding'))*2)
+    @width = @track['canvases'].width()
+    @height = @track['canvases'].height()-(parseInt(@track['canvases'].css('padding'))*2)
 
     for id, element of @canvases
       ctx = element[0].getContext("2d")

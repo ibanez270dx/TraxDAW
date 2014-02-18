@@ -112,7 +112,7 @@ section#workspace {
   background: $light-grey;
   @include border-radius(10px); 
 
-  table#tracks {
+  table#container {
     border: 1px solid #000000;
     border-spacing: 0px;
     position: relative;
@@ -122,38 +122,28 @@ section#workspace {
     @include border-radius(10px);
 
     tbody {
-      tr.track {
-        position: relative;
-        width: 100%;
-        height: 100px;      
-        &.blue   { @include track-color($blue); }
-        &.purple { @include track-color($purple); }      
-        &.green  { @include track-color($green); }      
-        &.teal   { @include track-color($teal); }      
-        &.yellow { @include track-color($yellow); }      
-        &.red    { @include track-color($red); }      
-        &.orange { @include track-color($orange); }      
-        &.pink   { @include track-color($pink); }
+      tr {
 
-        td.controls {
+        /////////////////////////////////////////////////
+        // Controls
+        /////////////////////////////////////////////////
+        td#controls {
           width: 30%;
-          padding: 2px;
-          div.panel {
+
+          div.controls {
             position: relative;
-            width: 100%;
             height: 100px;
             @include border-radius(7px);
             background: rgba(255,255,255,0.6);
-            padding-left: 12px;
+            padding-left: 10px;
             line-height: 25px;
-            border: 1px solid transparent;
+            border: 2px solid transparent;
+            margin: 4px 2px;
+            &:first-child { margin-top: 2px; }
+            &:last-child { margin-bottom: 2px; }
 
-            span.title {
-              cursor: pointer;
-            }
-            div.nodes {
-
-            }
+            span.title { cursor: pointer; }
+            div.nodes { }
             div.switches {
               position: absolute;
               right: 0px;
@@ -167,46 +157,51 @@ section#workspace {
                 text-transform: uppercase;
                 font-size: 10px;
               }
+            }  
+          }       
+        }
+
+        /////////////////////////////////////////////////
+        // Canvases
+        /////////////////////////////////////////////////
+        td#canvases {
+          position: relative;
+          overflow-x: scroll;
+          width: 70%;
+
+          div#tracks {
+            position: absolute;
+            width: 100%;
+            display: inline;
+            white-space:nowrap;
+            top: 1px;
+
+            div.canvases {
+              float: left;
+              position: relative;
+              width: 100%;
+              height: 100px;
+              border: 1px solid #00ff00;
+              margin: 2px;
+              &:first-child { margin-top: 2px; }
+              &:last-child { margin-bottom: 2px; }
+
+              .wave {
+                position: absolute;
+                top: 2px;
+                left: 0px;
+                z-index: 300;
+              }
+
+              .background {
+                position: absolute;
+                top: 2px;
+                left: 0px;
+                z-index: 200;
+              }
             }
           }
-        }
 
-        td.canvases {
-          position: relative;
-          width: 70%;
-
-          .wave {
-            position: absolute;
-            top: 2px;
-            left: 0px;
-            z-index: 300;
-          }
-
-          .background {
-            position: absolute;
-            top: 2px;
-            left: 0px;
-            z-index: 200;
-          }
-        }
-
-      }
-    }
-  }
-
-  table#canvas-layer {
-    position: absolute;
-    top: 0px;
-    width: 100%;
-
-    tbody {
-      tr {
-        td.controls {
-          width: 30%;
-        }
-        td.canvases {
-          width: 70%;
-          position: relative;
           canvas#grid {
             position: absolute;
             top: 0px;
@@ -216,6 +211,16 @@ section#workspace {
         }
       }
     }
+
+    // Track Colors
+    [data-color="blue"]   { @include track-color($blue); }
+    [data-color="purple"] { @include track-color($purple); }      
+    [data-color="green"]  { @include track-color($green); }      
+    [data-color="teal"]   { @include track-color($teal); }      
+    [data-color="yellow"] { @include track-color($yellow); }      
+    [data-color="red"]    { @include track-color($red); }      
+    [data-color="orange"] { @include track-color($orange); }      
+    [data-color="pink"]   { @include track-color($pink); }
   }
 
   div#lower-controls {
