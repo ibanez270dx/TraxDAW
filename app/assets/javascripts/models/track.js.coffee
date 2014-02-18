@@ -40,8 +40,8 @@
     @_setupCanvases()
     
     # Pick a random Track color
-    colors = ['blue','yellow','purple','red','green','orange','teal','pink']
-    @setColor(colors[Math.floor(Math.random()*(7-0+1))+0])
+    colors = ['blue','yellow','purple','red','green','orange','teal']
+    @setColor(colors[Math.floor(Math.random()*(colors.length-1))])
 
   ############################################################################################################
   # Audio Utility (WAV Formatting)   

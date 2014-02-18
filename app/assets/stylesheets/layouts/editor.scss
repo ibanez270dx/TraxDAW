@@ -218,8 +218,7 @@ section#workspace {
     [data-color="teal"]   { @include track-color($teal); }      
     [data-color="yellow"] { @include track-color($yellow); }      
     [data-color="red"]    { @include track-color($red); }      
-    [data-color="orange"] { @include track-color($orange); }      
-    [data-color="pink"]   { @include track-color($pink); }
+    [data-color="orange"] { @include track-color($orange); }
   }
 
   div#workspace-controls {
