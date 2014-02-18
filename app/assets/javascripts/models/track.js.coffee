@@ -11,6 +11,7 @@
   rightChannel: []
   buffers: []
   bufferSource: []
+  waveform: []
 
   length: 0
   duration: 0
@@ -26,7 +27,9 @@
     @track =
       controls: elements.filter -> $(this).hasClass('controls')
       canvases: elements.filter -> $(this).hasClass('canvases')
+    
     @id = id
+    @controls = @track['controls']
     @canvases = 
       wave: @track['canvases'].find('canvas.wave')
       background: @track['canvases'].find('canvas.background')
@@ -39,40 +42,6 @@
     # Pick a random Track color
     colors = ['blue','yellow','purple','red','green','orange','teal','pink']
     @setColor(colors[Math.floor(Math.random()*(7-0+1))+0])
-
-  ############################################################################################################
-  # Track Methods   
-  ############################################################################################################
-
-  setColor: (color) =>
-    for name, element of @track
-      element.attr('data-color', color) 
-
-  getHexColor: =>
-    @track['controls'].find('.tag').css('background-color')
-
-  saveBuffers: => 
-    # Flatten the left and right channels down and save
-    leftBuffer  = @_mergeBuffers(@leftChannel,  @length)
-    rightBuffer = @_mergeBuffers(@rightChannel, @length)
-    @buffers = [leftBuffer, rightBuffer]
-
-  reset: =>
-    # Reset Details
-    @leftChannel.length = @rightChannel.length = @length = 0
-
-    # Reset Track Canvas
-    for id, element of @canvases
-      ctx = element[0].getContext("2d")
-      ctx.save()
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, ctx.canvas.width, 100);
-      ctx.restore()
-
-    # FIXME: Reset the Cursor
-    # wave = @track['canvases']['wave'][0].getContext("2d")
-    # wave.translate(-@currentPosition, 0);
-    # wave.restore()
 
   ############################################################################################################
   # Audio Utility (WAV Formatting)   
@@ -168,4 +137,67 @@
       ctx.canvas.width = @width
       ctx.canvas.height = @height
       ctx.save()
+
+  _drawWaveform: (array) =>
+    min = Math.min.apply(Math, array)
+    max = Math.max.apply(Math, array)
+    @waveform.push(max-min)
+
+    # Conversion for Track height
+    value = (max-min)*(@height/255)
+
+    # Draw the waveform
+    ctx = @canvases['wave'][0].getContext("2d")
+    ctx.fillStyle = "#{@getHexColor()}"
+    ctx.fillRect(0, (@height/2)-(value/2), 1, value)
+    ctx.translate(1, 0)
+
+  _drawBackground: =>
+    ctx = @canvases['background'][0].getContext("2d")
+    ctx.fillStyle = "rgba(255,255,255,0.1)"
+    ctx.fillRect(0, 0, 1, @height)
+    ctx.translate(1, 0)
+    @cursorPosition++
+
+  ############################################################################################################
+  # Track Methods   
+  ############################################################################################################
+
+  setColor: (color) =>
+    for name, element of @track
+      element.attr('data-color', color) 
+
+  getHexColor: =>
+    @track['controls'].find('.tag').css('background-color')
+
+  draw: (array) =>
+    @_drawWaveform(array)
+    @_drawBackground()
+
+  redraw: =>
+
+
+  saveBuffers: => 
+    # Flatten the left and right channels down and save
+    leftBuffer  = @_mergeBuffers(@leftChannel,  @length)
+    rightBuffer = @_mergeBuffers(@rightChannel, @length)
+    @buffers = [leftBuffer, rightBuffer]
+
+  reset: =>
+    # Reset Details
+    @leftChannel.length = @rightChannel.length = @length = 0
+
+    # Reset Track Canvas
+    for id, element of @canvases
+      ctx = element[0].getContext("2d")
+      ctx.save()
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, ctx.canvas.width, 100);
+      ctx.restore()
+
+    # FIXME: Reset the Cursor
+    # wave = @track['canvases']['wave'][0].getContext("2d")
+    # wave.translate(-@currentPosition, 0);
+    # wave.restore()
+
 

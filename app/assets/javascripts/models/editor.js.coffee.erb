@@ -31,16 +31,14 @@
     @_setupNodes()
     @_setupAudioHandler()
 
-    # Initialize Editor
-    @buffer = new TRAX.Buffer(@context)
-    @_setupClickHandlers()
-
     # Create Workspace
     @workspace = new TRAX.Workspace(@context, @editor.find('#workspace'))
 
     # Create a track to start
     @workspace.createTrack()
 
+    # Initialize Editor
+    @_setupClickHandlers()
 
   ############################################################################################################
   # Web Audio API   
@@ -93,15 +91,15 @@
         # We clone the samples and set Track channels
         leftChannel = event.inputBuffer.getChannelData(0)
         rightChannel = event.inputBuffer.getChannelData(1)
-        @track.leftChannel.push(new Float32Array(leftChannel))
-        @track.rightChannel.push(new Float32Array(rightChannel))
+        @workspace.currentTrack.leftChannel.push(new Float32Array(leftChannel))
+        @workspace.currentTrack.rightChannel.push(new Float32Array(rightChannel))
         
         # Set Buffer Length and Track duration
-        @track.length += event.inputBuffer.length
-        @track.duration += event.inputBuffer.duration
+        @workspace.currentTrack.length += event.inputBuffer.length
+        @workspace.currentTrack.duration += event.inputBuffer.duration
 
         # Draw Canvas
-        @_drawRecording(array)
+        @workspace.currentTrack.draw(array)
 
       if @isPlaying
         console.log "it's playing!"
@@ -118,32 +116,6 @@
       value = array[i]
       ctx.fillStyle = @chromaOrange(value / 255).hex()
       ctx.fillRect((i * 100) / 255, (value / 2) - 45, 1, 1)
-
-  _drawWaveform: (array) =>
-    ctx = @track['canvases']['wave'][0].getContext("2d")
-    waveValues = []
-    min = Math.min.apply(Math, array) * 100 / 255
-    max = Math.max.apply(Math, array) * 100 / 255
-    while min < max
-      waveValues.push(min)
-      min++
-
-    for i in [0..waveValues.length]
-      value = waveValues[i]
-      ctx.fillStyle = "#{@track.getHexColor()}"
-      ctx.fillRect(0, value, 1, 1)
-    ctx.translate(1, 0)
-
-  _drawBackground: =>
-    ctx = @track['canvases']['background'][0].getContext("2d")
-    ctx.fillStyle = "rgba(255,255,255,0.1)"
-    ctx.fillRect(0, 0, 1, @track['height'])
-    ctx.translate(1, 0)
-    @cursorPosition++
-
-  _drawRecording: (array) =>
-    @_drawWaveform(array)
-    @_drawBackground()
 
   ############################################################################################################
   # Editor Methods   
@@ -165,24 +137,24 @@
   startRecording: =>
     if @micRunning
       $("div.record i").addClass("active")
-      @track.reset()
+      @workspace.currentTrack.reset()
       @isRecording = true 
 
   stopRecording: =>
     @isRecording = false
     $("div.record i").removeClass("active")
     $('div.playback').removeClass('disabled')
-    @track.saveBuffers()
-    console.log "duration: ", @track.duration
+    @workspace.currentTrack.saveBuffers()
+    console.log "duration: ", @workspace.currentTrack.duration
 
   startPlayback: =>
     $('div.playback i').addClass('active')
-    @buffer.play(@tracks)
+    @workspace.startPlayback()
     @isPlaying = true
 
   stopPlayback: =>
     $('div.playback i').removeClass('active')
-    @buffer.stop()
+    @workspace.stopPlayback()
     @isPlaying = false
 
   ############################################################################################################
@@ -222,10 +194,4 @@
     # Change Track Name
     $(document).on 'click', '.track .title', (event) =>
       event.preventDefault()
-
-    # Select Track
-    $(document).on 'click', '#workspace .controls', (event) =>
-      event.preventDefault()
-      track_id = $(event.currentTarget).data('track-id')
-      @workspace.selectTrackById(track_id)
 
