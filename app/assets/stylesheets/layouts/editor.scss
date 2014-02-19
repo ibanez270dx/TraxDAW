@@ -23,7 +23,7 @@ html {
         padding-left: 13px;
         i {
           position: relative;
-          top: 7px;
+          top: 10px;
           left: -2px;
           font-size: 35px;
           line-height: 29px;
@@ -51,12 +51,37 @@ html {
         }
       }
 
-      &.record {
-        @include span-columns(4);
-        text-align: center;
+      &.metronome {
+        @include span-columns(2);
+        text-align: right;
         i {
           position: relative;
-          top: 7px;
+          top: 10px;
+          left: -2px;
+          font-size: 35px;
+          line-height: 29px;
+          &.active {
+            color: #e10019;
+          }
+        }
+        [name="bpm"] {
+          width: 48px;
+          font-size: 16px;
+          background: transparent;
+          border: none;
+          &::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+          }
+        }
+      }
+
+      &.record {
+        @include span-columns(3);
+        text-align: right;
+        i {
+          position: relative;
+          top: 10px;
           left: -2px;
           font-size: 35px;
           line-height: 29px;
@@ -67,12 +92,12 @@ html {
       }
 
       &.playback {
-        @include span-columns(4);
+        @include span-columns(3);
         padding-right: 15px;
         text-align: right;
         i {
           position: relative;
-          top: 7px;
+          top: 10px;
           left: -2px;
           font-size: 35px;
           line-height: 29px;

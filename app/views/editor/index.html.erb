@@ -10,6 +10,12 @@
         <canvas id="live-waveform" width="100" height="35"></canvas>
         <div id="live-waveform-glass"></div>
       </div>
+      <div class="metronome">
+        <i class="icon-metronome inset"></i>
+        <input name="bpm" value="120" type="number" />
+        BPM
+
+      </div>
       <div class="record disabled">
         <i class="icon-circle inset"></i>
         <button id="rec-start">Start</button>
@@ -21,7 +27,6 @@
         <button id="play-stop">Stop</button>
       </div>
     </nav>
-
 
     <section id="workspace">
       <table id="container">
@@ -46,7 +51,7 @@
           <li>
             <button id="add-track"><i class="fa fa-plus-square"></i>Add Track</button>
           </li>
-        </li>
+        </ul>
 
       </div>
     </section>
