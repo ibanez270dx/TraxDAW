@@ -20,12 +20,20 @@
     @bufferSize = 2048
     @sampleRate = 44100
     @bufferSource = undefined
+    @stream = undefined
     @currentTrackId = 0
 
     [@micRunning, @isRecording, @isPlaying] = [false, false, false]
     [@width, @height, @cursorPosition] = [0, 0, 0]
     @chromaOrange = new chroma.scale(["#00ff00", "#e0e000", "#ff7f00", "#b60101"])
     
+    @controls =
+      power: @editor.find('nav li#power')
+      microphone: @editor.find('nav li#microphone')
+      metronome: @editor.find('nav li#metronome')
+      record: @editor.find('nav li#record')
+      playback: @editor.find('nav li#playback')
+
     # Setup Web Audio API
     @context = new webkitAudioContext()
     @_setupNodes()
@@ -38,6 +46,7 @@
     @workspace.createTrack()
 
     # Initialize Editor
+    $('nav li.disabled input').prop('disabled', true)
     @_setupClickHandlers()
 
   ############################################################################################################
@@ -121,31 +130,62 @@
   # Editor Methods   
   ############################################################################################################
 
+  enableMicrophone: =>
+    @controls['microphone'].removeClass('disabled')
+    @controls['microphone'].find('input').prop('disabled', false)
+
+  disableMicrophone: =>
+    @controls['microphone'].addClass('disabled')
+    @controls['microphone'].find('input').prop('disabled', true)
+
   startMicrophone: =>
-    navigator.webkitGetUserMedia { audio: true }, (stream) =>
-      @micSource = @context.createMediaStreamSource(stream)
-      @micSource.connect(@gain)
-      @micRunning = true
-      $("nav .record").removeClass("disabled")
+    @micSource = @context.createMediaStreamSource(@stream)
+    @micSource.connect(@gain)
+    @micRunning = true
+    @enableRecord()
 
   stopMicrophone: =>
-    @micSource.disconnect(@volume)
     @micRunning = false
+    @micSource.disconnect(@volume)    
     @liveWaveform.get()[0].getContext("2d").clearRect(0, 0, 100, 35)
-    $("nav .record").addClass("disabled")
+    @disableRecord()
 
-  startRecording: =>
+  enableMetronome: =>
+    @controls['metronome'].removeClass('disabled')
+    @controls['metronome'].find('input').prop('disabled', false)
+
+  disableMetronome: =>
+    @controls['metronome'].addClass('disabled')
+    @controls['metronome'].find('input').prop('disabled', true)
+
+  enableRecord: =>
+    @controls['record'].removeClass('disabled')
+    @controls['record'].find('input').prop('disabled', false)
+
+  disableRecord: =>
+    @controls['record'].addClass('disabled')
+    @controls['record'].find('input').prop('disabled', true)
+
+  startRecord: =>
     if @micRunning
-      $("div.record i").addClass("active")
+      @controls['record'].find('i.circle-on').addClass("active")
       @workspace.currentTrack.reset()
       @isRecording = true 
 
-  stopRecording: =>
+  stopRecord: =>
     @isRecording = false
     $("div.record i").removeClass("active")
     $('div.playback').removeClass('disabled')
     @workspace.currentTrack.saveBuffers()
     console.log "duration: ", @workspace.currentTrack.duration
+
+  enablePlayback: =>
+    @controls['playback'].removeClass('disabled')
+    @controls['playback'].find('input').prop('disabled', false)
+
+  disablePlayback: =>
+    @controls['playback'].addClass('disabled')
+    @controls['playback'].find('input').prop('disabled', true)
 
   startPlayback: =>
     $('div.playback i').addClass('active')
@@ -162,29 +202,42 @@
   ############################################################################################################
 
   _setupClickHandlers: =>
-    # Start Microphone
-    @editor.find("#mic-start").on 'click', (event) =>
-      @startMicrophone()
+    # Start Audio API
+    @editor.find('input#power-on').on 'click', (event) =>
+      target = $(event.currentTarget)
+      if target.is(':checked')
+        navigator.webkitGetUserMedia { audio: true }, (stream) =>
+          @stream = stream
+          @enableMicrophone()
+          @enableMetronome()
+        , (event) =>
+          target.prop('checked', false)
 
-    # Stop Microphone
-    @editor.find("#mic-stop").on 'click', (event) =>
-      @stopMicrophone()
+    # Microphone Toggle
+    @editor.find("input#microphone-on").on 'click', (event) =>
+      if $(event.currentTarget).is(':checked')
+        @startMicrophone()
+      else
+        @stopMicrophone()
 
     # Start Recording
-    @editor.find("#rec-start").on 'click', (event) =>
-      @startRecording()
+    @editor.find("input#record-on").on 'click', (event) =>
+      if $(event.currentTarget).is(':checked')
+        @startRecord()
+      else
+        @stopRecord()
 
-    # Stop Recording
-    @editor.find("#rec-stop").on 'click', (event) =>
-      @stopRecording()
+    # # Stop Recording
+    # @editor.find("#rec-stop").on 'click', (event) =>
+    #   @stopRecording()
 
-    # Start Playback
-    @editor.find("#play-start").on 'click', (event) =>
-      @startPlayback()
+    # # Start Playback
+    # @editor.find("#play-start").on 'click', (event) =>
+    #   @startPlayback()
 
-    # Stop Playback
-    @editor.find('#play-stop').on 'click', (event) =>
-      @stopPlayback()
+    # # Stop Playback
+    # @editor.find('#play-stop').on 'click', (event) =>
+    #   @stopPlayback()
 
     # Add Track
     @editor.find('#add-track').on 'click', (event) =>

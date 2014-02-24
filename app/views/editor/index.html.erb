@@ -8,22 +8,24 @@
           <%= switch_icon('power') %>
         </li>
       
-        <li id="microphone">
+        <li id="microphone" class="disabled">
           <%= switch_icon('microphone') %>
           <canvas id="live-waveform" width="100" height="36"></canvas>
         </li>
 
-        <li id="metronome">
+        <li id="metronome" class="disabled">
           <%= switch_icon('metronome') %>
-          <span class="number-input-wrapper">
-            <input name="bpm" value="120" type="number" />
-          </span>
-          <span class="bpm">BPM</span>
+          <div class="bpm">
+            <span class="number-input-wrapper">
+              <input name="bpm" value="120" type="number" />
+            </span>
+            <span class="bpm">BPM</span>
+          </div>
         </li>
 
         <li id="record" class="disabled">
           <ul id="record-controls">
-            <li><%= switch_icon('circle') %></li>
+            <li><%= switch_icon('circle', name: 'record') %></li>
             <li><%= switch_icon('undo') %></li>
           </ul>
         </li>
