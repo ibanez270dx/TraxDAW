@@ -16,9 +16,6 @@
     width: 100%;
     height: 100%;
   }
-  input[type=checkbox]:checked + label {
-    color: $blue;
-  }
 
   &.power input[type=checkbox]:checked + label { color: $blue; }
   &.microphone input[type=checkbox]:checked + label { color: $orange; }

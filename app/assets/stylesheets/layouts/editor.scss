@@ -61,11 +61,7 @@ html {
         &#metronome {
           position: relative;
           font-weight: bold;
-          i {
-            &.active {
-              color: #e10019;
-            }
-          }
+          i.active { color: $purple; }
 
           div.bpm {
             display: inline-block;
