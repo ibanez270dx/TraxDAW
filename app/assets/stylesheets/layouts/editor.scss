@@ -10,113 +10,127 @@ html {
     @include border-radius(15px);
     margin-bottom: 5px;
 
-    div {
-      height: 50px;
-      line-height: 51px;
+    ul {
+      list-style: none;
+      margin: 0px;
+      padding: 0px;
 
-      i.inset {
-        text-shadow: 1px 1px 1px #ffffff;
-      }
-      
-      &.microphone {
-        @include span-columns(4);
-        padding-left: 13px;
-        i {
-          position: relative;
-          top: 10px;
-          left: -2px;
-          font-size: 35px;
-          line-height: 29px;
+      > li {
+        position: relative;
+        display: inline-block;
+        height: 50px;
+        float: left;
+        margin-left: 10px;
+        margin-right: 10px;
+        line-height: 56px;
+        &:first-child {
+          margin-left: 0px;
         }
-        #live-waveform {
-          border-radius: 4px;
-          position: absolute;
-          margin-left: 5px;
-          margin-top: 7px;
-          background: #000000;
-          border-top: 1px solid #474747;
-          border-left: 1px solid #474747;
-          border-right: 1px solid #747474;
-          border-bottom: 1px solid #747474;
-        }
-        #live-waveform-glass {
-          position: absolute;
-          top: 8px;
-          left: 227px;
-          z-index: 9999;
-          width: 100px;
-          height: 35px;
-          box-shadow: inset 0 10px 10px rgba(255, 255, 255, 0.75);
-          border-radius: 4px;
-        }
-      }
 
-      &.metronome {
-        @include span-columns(2);
-        text-align: right;
-        i {
-          position: relative;
-          top: 10px;
-          left: -2px;
-          font-size: 35px;
-          line-height: 29px;
-          &.active {
-            color: #e10019;
+        i.inset {
+          text-shadow: 1px 1px 1px #ffffff;
+        }
+
+        ////////////////////////////////////////
+        // Power
+        ////////////////////////////////////////
+        &#power {
+          text-align: center;
+        }
+
+        ////////////////////////////////////////
+        // Microphone
+        ////////////////////////////////////////      
+        &#microphone {
+          i { font-size: 35px; }
+
+          #live-waveform {
+            position: relative;
+            top: 3px;
+            border-radius: 4px;
+            background: #000000;
+            border-top: 1px solid #474747;
+            border-left: 1px solid #474747;
+            border-right: 1px solid #747474;
+            border-bottom: 1px solid #747474;
           }
         }
-        [name="bpm"] {
-          width: 48px;
-          font-size: 16px;
-          background: transparent;
-          border: none;
-          &::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-          }
-        }
-      }
 
-      &.record {
-        @include span-columns(3);
-        text-align: right;
-        i {
+        ////////////////////////////////////////
+        // Metronome
+        ////////////////////////////////////////  
+        &#metronome {
           position: relative;
-          top: 10px;
-          left: -2px;
-          font-size: 35px;
-          line-height: 29px;
-          &.active {
-            color: #e10019;
+          font-weight: bold;
+          i {
+            &.active {
+              color: #e10019;
+            }
+          }
+          .number-input-wrapper {
+            position: absolute;
+            top: 8px;
+            left: 50px;
+            overflow: hidden;
+            width: 35px;
+            height: 28px;
+            [name="bpm"] {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 48px;
+              font-size: 16px;
+              font-weight: bold;
+              background: transparent;
+              border: none;
+              &:focus { outline: 0; }           
+            }
+          }
+          span.bpm {
+            position: absolute;
+            top: 26px;
+            left: 53px;
+          }
+          button {
+            margin-left: 10px;
           }
         }
-      }
 
-      &.playback {
-        @include span-columns(3);
-        padding-right: 15px;
-        text-align: right;
-        i {
-          position: relative;
-          top: 10px;
-          left: -2px;
-          font-size: 35px;
-          line-height: 29px;
-          &.active {
-            color: #66CD00;
+        ////////////////////////////////////////
+        // Record
+        ////////////////////////////////////////  
+        &#record {
+          i {
+            &.active {
+              color: #e10019;
+            }
           }
         }
-      }
 
-      &.disabled {
-        color: #cccccc;
-        button {
-          background: #cccccc !important;
-          color: #999999 !important;
-          border-color: #eeeeee;
-          &:hover {
-            background: #cccccc;
-            color: #999999;
+        ////////////////////////////////////////
+        // Playback
+        ////////////////////////////////////////  
+        &#playback {
+          padding-right: 15px;
+          text-align: right;
+          i {
+            &.active {
+              color: #66CD00;
+            }
+          }
+        }
+
+        &.disabled {
+          color: #cccccc;
+          button {
+            background: #cccccc !important;
+            color: #999999 !important;
             border-color: #eeeeee;
+            &:hover {
+              background: #cccccc;
+              color: #999999;
+              border-color: #eeeeee;
+            }
           }
         }
       }

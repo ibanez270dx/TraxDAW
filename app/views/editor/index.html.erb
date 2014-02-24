@@ -3,29 +3,40 @@
 
   <div data-editor>
     <nav>
-      <div class="microphone">
-        <i class="icon-microphone inset"></i>
-        <button id="mic-start">Activate</button>
-        <button id="mic-stop">Deactivate</button>
-        <canvas id="live-waveform" width="100" height="35"></canvas>
-        <div id="live-waveform-glass"></div>
-      </div>
-      <div class="metronome">
-        <i class="icon-metronome inset"></i>
-        <input name="bpm" value="120" type="number" />
-        BPM
+      <ul>
+        <li id="power">
+          <%= switch_icon('power') %>
+        </li>
+      
+        <li id="microphone">
+          <%= switch_icon('microphone') %>
+          <canvas id="live-waveform" width="100" height="36"></canvas>
+        </li>
 
-      </div>
-      <div class="record disabled">
-        <i class="icon-circle inset"></i>
-        <button id="rec-start">Start</button>
-        <button id="rec-stop">Stop</button>
-      </div>
-      <div class="playback disabled">
-        <i class="icon-play inset"></i>
-        <button id="play-start">Start</button>
-        <button id="play-stop">Stop</button>
-      </div>
+        <li id="metronome">
+          <%= switch_icon('metronome') %>
+          <span class="number-input-wrapper">
+            <input name="bpm" value="120" type="number" />
+          </span>
+          <span class="bpm">BPM</span>
+        </li>
+
+        <li id="record" class="disabled">
+          <ul id="record-controls">
+            <li><%= switch_icon('circle') %></li>
+            <li><%= switch_icon('undo') %></li>
+          </ul>
+        </li>
+
+        <li id="playback" class="disabled">
+          <ul id="playback-controls">
+            <li><%= switch_icon('backward') %></li>
+            <li><%= switch_icon('stop') %></li>
+            <li><%= switch_icon('play') %></li>
+            <li><%= switch_icon('pause') %></li>
+            <li><%= switch_icon('forward') %></li>
+        </li>
+      </ul>
     </nav>
 
     <section id="workspace">
